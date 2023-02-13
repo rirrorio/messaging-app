@@ -1,41 +1,53 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from 'axios'
+import axios from "axios";
 import { registerRoute } from "../utils/APIRoutes";
 
 function Register() {
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     username: "",
     email: "",
     password: "",
   });
+
   function handleValidation() {
     const { email, password, username } = values;
 
     if (!email || !password || !username) {
       toast.error("validation error, check your input");
-      return false
-    }else if(username.length<4){
-        toast.error("Username cannot be less than 5 characters");
-        return false
-    }else if(password.length<8){
-        toast.error("Password cannot be less than 8 characters");
-        return false
-    }else if(email===''){  
-        toast.error("email cannot be empty")
-        return false
-    }else return true
+      return false;
+    } else if (username.length < 4) {
+      toast.error("Username cannot be less than 5 characters");
+      return false;
+    } else if (password.length < 8) {
+      toast.error("Password cannot be less than 8 characters");
+      return false;
+    } else if (email === "") {
+      toast.error("email cannot be empty");
+      return false;
+    } else return true;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if ( handleValidation()===true){
-        const { email, password, username } = values;
-        const {data} = await axios.post(registerRoute,{email, username, password})
-    };
+    if (handleValidation() === true) {
+      const { email, password, username } = values;
+      const { data } = await axios.post(registerRoute, {
+        email,
+        username,
+        password,
+      });
+      if (data.status === false) {
+        toast.error(data.msg);
+      } else if ((data.status = true)) {
+        localStorage.setItem("LavenderChatUser", JSON.stringify(data.newUser));
+      }
+      navigate("/");
+    }
   }
 
   function handleChange(event) {
@@ -44,40 +56,41 @@ function Register() {
 
   return (
     <>
-        <FormContainer>
-          <form onSubmit={(event) => handleSubmit(event)}>
-            <div className="brand">
-              <h1>LavenderChat</h1>
-            </div>
-            <input
-              type="text"
-              placeholder="Username"
-              name="username"
-              onChange={(e) => handleChange(e)}
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              name="email"
-              onChange={(e) => handleChange(e)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              name="password"
-              onChange={(e) => handleChange(e)}
-            />
+      <FormContainer>
+        <form onSubmit={(event) => handleSubmit(event)}>
+          <div className="brand">
+            <h1>LavenderChat</h1>
+          </div>
+            <h3>Create an account</h3>
+          <input
+            type="text"
+            placeholder="Username"
+            name="username"
+            onChange={(e) => handleChange(e)}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            name="email"
+            onChange={(e) => handleChange(e)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            onChange={(e) => handleChange(e)}
+          />
 
-            <button type="submit">Create Account</button>
-            <span>
-              Already on LavenderChat? sign in{" "}
-              <Link className="toLogin" to="/login">
-                here
-              </Link>
-            </span>
-          </form>
-        </FormContainer>
-      <ToastContainer/>
+          <button type="submit">Create Account</button>
+          <span>
+            Already on LavenderChat? sign in{" "}
+            <Link className="toLogin" to="/login">
+              here
+            </Link>
+          </span>
+        </form>
+      </FormContainer>
+      <ToastContainer />
     </>
   );
 }
@@ -91,6 +104,7 @@ const FormContainer = styled.div`
   align-items: center;
   .brand {
     display: flex;
+    flex-direction:column
     align-items: center;
     gap: 1rem;
     justify-content: center;
@@ -119,6 +133,9 @@ const FormContainer = styled.div`
   }
   .toLogin {
     color: #702963;
+  }
+  h3{
+    text-align:center
   }
 `;
 export default Register;

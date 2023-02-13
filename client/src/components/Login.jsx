@@ -13,6 +13,12 @@ function Login() {
     password: "",
   });
 
+  useEffect(()=>{
+    if(localStorage.getItem("username")){
+        navigate('/')
+    }
+  },[])
+
   function handleValidation() {
     const { password, username } = values;
 
@@ -33,12 +39,14 @@ function Login() {
         username,
         password,
       });
+      console.log(data);
       if (data.status === false) {
         toast.error(data.msg);
       } else if ((data.status = true)) {
-        localStorage.setItem("LavenderChatUser", JSON.stringify(data.newUser));
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("email", data.email);
+        navigate("/");
       }
-      navigate("/");
     }
   }
 

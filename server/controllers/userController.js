@@ -23,8 +23,28 @@ class userController{
                 password:hashedPassword
             })
             delete newUser.password
-            return res.json({status:true})
+            return res.status(200).json({newUser})
             
+        } catch (error) {
+            next(error)
+        }
+    }
+    static async login (req,res,next){
+        try {
+            const {username, password} = req.body
+    
+            const userCheck = await User.findOne({username})
+            if(!userCheck){
+                return res.json({msg:"username or password is not valid", status:false})
+            }
+            const passwordValidation = bcrypt.compare(password,userCheck.password)
+            if(!passwordValidation){
+                return res.json({msg:"username or password is not valid", status:false})
+            }
+            else  {
+                delete userCheck.password
+                return res.status(200).json(userCheck)
+            }
         } catch (error) {
             next(error)
         }
